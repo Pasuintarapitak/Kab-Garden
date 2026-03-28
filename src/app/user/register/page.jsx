@@ -17,13 +17,13 @@ export default function Register() {
         event.preventDefault();
         setError('');
 
-        // 1. ตรวจสอบว่ารหัสผ่านตรงกันไหม (Client-side Validation)
+        //  (Client-side Validation)
         if (password !== confirmPassword) {
             setError('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง');
             return;
         }
 
-        // 2. ตรวจสอบความยาวรหัสผ่าน (Optional: เพิ่มความปลอดภัย)
+   
         if (password.length < 4) {
             setError('รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร');
             return;
@@ -52,7 +52,7 @@ export default function Register() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen bg-white font-sans text-gray-900">
             
-            {/* === ฝั่งซ้าย: Gallery Space === */}
+         
             <div className="hidden md:flex flex-col justify-center items-center bg-[#F9FAF9] p-8 border-r border-gray-100">
                 <div className="relative w-full max-w-[650px] aspect-[1/1] overflow-hidden rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-white">
                     <Image 
@@ -65,7 +65,7 @@ export default function Register() {
                 </div>
             </div> 
 
-            {/* === ฝั่งขวา: Register Form === */}
+       
             <div className="flex justify-center items-center p-12 bg-white">
                 <div className="w-full max-w-sm">
                     

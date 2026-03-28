@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Sidebar from "../../../components/sidebar";
 import Link from "next/link";
-import NavbarUser from "../../../components/navbaruser";
+import Navbar from "../../../components/Navbar";
 
 export default function ChangePassword() {
   const { data: session, status } = useSession();
@@ -17,7 +17,7 @@ export default function ChangePassword() {
   }, [router, status]);
   return (
     <div className="">
-      <NavbarUser></NavbarUser>
+      <Navbar />
       <div className="p-8">
       <div className="grid grid-cols-6 gap-5 p-8">
         {/* Sidebar */}

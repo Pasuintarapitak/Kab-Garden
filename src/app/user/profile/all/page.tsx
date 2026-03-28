@@ -60,7 +60,7 @@ export default function AllOrdersPage() {
     }
   }, [router, status, session?.user]);
 
-  // อัปเดตยอดซื้อสะสมเข้า Profile อัตโนมัติเมื่อข้อมูล Order เปลี่ยนแปลง
+ 
   useEffect(() => {
     if (orders.length > 0 && session?.user?.email) {
       const updatePurchaseAmount = async () => {
