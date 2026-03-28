@@ -9,12 +9,6 @@ export async function GET() {
       by: ['postId'],
       _sum: {
         totalPrice: true
-      },
-      select: {
-        postId: true,
-        _sum: {
-          totalPrice: true
-        }
       }
     });
 
