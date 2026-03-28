@@ -128,7 +128,7 @@ export default function Bill() {
 
             {/* Footer Note */}
             <div className="text-center mb-10">
-              <p className="text-gray-400 text-xs italic font-light">"May your new plant bring joy to your space."</p>
+              <p className="text-gray-400 text-xs italic font-light">&quot;May your new plant bring joy to your space.&quot;</p>
               <p className="text-[#2D5A27] font-bold text-sm mt-2">KAB GARDEN</p>
             </div>
 

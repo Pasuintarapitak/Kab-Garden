@@ -36,7 +36,7 @@ export default function Home() {
           {/* ฝั่งขวา: ข้อความ */}
           <div className="flex flex-col items-start text-left">
             <h2 className="text-4xl md:text-6xl font-extrabold text-[#1a1a1a] mb-6 leading-tight">
-              We're Plant Seller <br /> Choose & Decorate
+              We&apos;re Plant Seller <br /> Choose & Decorate
             </h2>
             
             <div className="w-20 h-1 bg-[#2D5A27] mb-8"></div>

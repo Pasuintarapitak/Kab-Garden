@@ -299,7 +299,7 @@ export default function Checkout() {
               </button>
 
               <p className="text-[10px] text-gray-400 text-center mt-6 uppercase tracking-widest leading-relaxed">
-                By placing your order, you agree to <br /> KAB GARDEN's terms of service.
+                By placing your order, you agree to <br /> KAB GARDEN&apos; terms of service.
               </p>
             </div>
           </div>
