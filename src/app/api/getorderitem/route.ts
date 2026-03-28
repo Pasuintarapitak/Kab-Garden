@@ -21,7 +21,7 @@ export async function GET() {
     });
 
     // Update sales for each post
-    for (const [postId, totalSales] of salesMap.entries()) {
+    for (const [postId, totalSales] of Array.from(salesMap.entries())) {
       await prisma.post.update({
         where: { id: postId },
         data: { Sales: totalSales },
