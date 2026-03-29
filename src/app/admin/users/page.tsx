@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2"; 
 
 export default function AdminUserPage() {
   const { data: session, status } = useSession();
@@ -9,20 +10,15 @@ export default function AdminUserPage() {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // States สำหรับ Modal แก้ไข
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [error, setError] = useState("");
-
 
   const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/users");
       const data = await res.json();
-      if (res.ok) {
-        setUsers(data);
-      }
+      if (res.ok) setUsers(data);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     } finally {
@@ -30,22 +26,24 @@ export default function AdminUserPage() {
     }
   }, []);
 
-  // --- 🛡️ ระบบตรวจสอบสิทธิ์ (Guard) ---
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/user/login"); 
+      router.push("/user/login");
     } else if (status === "authenticated") {
       if ((session?.user as any)?.role !== "admin") {
-        router.push("/"); 
+        router.push("/");
       } else {
-        fetchUsers(); 
+        fetchUsers();
       }
     }
   }, [status, session, router, fetchUsers]);
 
-  // --- 🛠️ ฟังก์ชันจัดการ Modal ---
   const handleEditClick = (user: any) => {
-    setEditingUser({ ...user });
+ 
+    setEditingUser({ 
+      ...user, 
+      newPassword: "" 
+    });
     setError("");
     setIsModalOpen(true);
   };
@@ -55,7 +53,8 @@ export default function AdminUserPage() {
     setEditingUser(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+ 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditingUser((prev: any) => ({
       ...prev,
@@ -75,9 +74,14 @@ export default function AdminUserPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("อัปเดตข้อมูลสวนเรียบร้อยแล้ว 🍃");
+        Swal.fire({
+          icon: 'success',
+          title: 'อัปเดตสำเร็จ',
+          text: 'ข้อมูลสมาชิกถูกบันทึกเรียบร้อยแล้ว 🍃',
+          confirmButtonColor: '#16a34a'
+        });
         handleCloseModal();
-        fetchUsers(); // รีโหลดตาราง
+        fetchUsers();
       } else {
         setError(data.error || "เกิดข้อผิดพลาดในการอัปเดต");
       }
@@ -87,23 +91,31 @@ export default function AdminUserPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("คุณแน่ใจนะว่าจะลบสมาชิกคนนี้? ข้อมูลจะหายไป!")) return;
-    const res = await fetch("/api/admin/users", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+    const result = await Swal.fire({
+      title: 'คุณแน่ใจนะ?',
+      text: "ข้อมูลสมาชิกจะหายไปจากสวน KAB GARDEN ทันที!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ใช่, ลบเลย!',
+      cancelButtonText: 'ยกเลิก'
     });
-    if (res.ok) fetchUsers();
+
+    if (result.isConfirmed) {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        Swal.fire('ลบแล้ว!', 'สมาชิกถูกลบออกเรียบร้อย', 'success');
+        fetchUsers();
+      }
+    }
   };
 
-  // --- ⏳ แสดงหน้า Loading ระหว่างเช็คสิทธิ์ ---
-  if (status === "loading" || (status === "authenticated" && (session?.user as any)?.role !== "admin")) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white font-medium text-green-700 italic animate-pulse">
-        กำลังตรวจสอบสิทธิ์... 🍃
-      </div>
-    );
-  }
+  if (status === "loading") return <div className="min-h-screen flex items-center justify-center bg-white font-medium text-green-700 italic animate-pulse">กำลังตรวจสอบสิทธิ์... 🍃</div>;
 
   return (
     <div className="max-w-7xl mx-auto p-6 animate-fade-in">
@@ -112,13 +124,14 @@ export default function AdminUserPage() {
         ระบบจัดการสมาชิก KAB GARDEN
       </h1>
       
+      {/* Table Section */}
       <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
         <table className="w-full text-left border-collapse">
           <thead className="bg-green-50/50 text-green-900 uppercase text-[10px] tracking-widest font-bold">
             <tr>
               <th className="p-5 border-b border-green-100">ID</th>
               <th className="p-5 border-b border-green-100">ชื่อ-อีเมล</th>
-              <th className="p-5 border-b border-green-100">ที่อยู่ / เบอร์โทร</th>
+              <th className="p-5 border-b border-green-100 w-1/3">ที่อยู่</th>
               <th className="p-5 border-b border-green-100 text-center">บทบาท</th>
               <th className="p-5 border-b border-green-100 text-right">การจัดการ</th>
             </tr>
@@ -132,8 +145,7 @@ export default function AdminUserPage() {
                   <div className="text-xs text-gray-400">{user.email}</div>
                 </td>
                 <td className="p-5 text-sm">
-                  <div className="text-gray-500 truncate w-48 mb-1" title={user.address}>{user.address || "-"}</div>
-                  <div className="text-green-700 font-bold text-xs">{user.phone || "-"}</div>
+                  <div className="text-gray-500 line-clamp-2" title={user.address}>{user.address || "-"}</div>
                 </td>
                 <td className="p-5 text-center">
                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase ${
@@ -142,10 +154,10 @@ export default function AdminUserPage() {
                         {user.role}
                     </span>
                 </td>
-                <td className="p-5 text-right space-x-3">
+                <td className="p-5 text-right space-x-3 text-nowrap">
                   <button onClick={() => handleEditClick(user)} className="text-green-600 hover:text-green-800 font-bold text-xs">แก้ไข</button>
                   <span className="text-gray-200">|</span>
-                  <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-600 font-bold text-xs">ลบสมาชิก</button>
+                  <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-600 font-bold text-xs">ลบ</button>
                 </td>
               </tr>
             ))}
@@ -153,35 +165,61 @@ export default function AdminUserPage() {
         </table>
       </div>
 
-      {/* --- Modal ป๊อปอัปสำหรับแก้ไข --- */}
+      {/* --- Modal แก้ไข --- */}
       {isModalOpen && editingUser && (
         <div className="fixed inset-0 bg-gray-900/60 flex items-center justify-center p-4 z-50 backdrop-blur-md">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg p-10 border border-gray-100">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg p-10 border border-gray-100 overflow-y-auto max-h-[90vh]">
             <h2 className="text-2xl font-black text-gray-800 mb-1 italic">Edit Member Info</h2>
             <p className="text-gray-400 mb-8 text-xs font-medium uppercase tracking-widest">System ID: #{editingUser.id}</p>
             
             {error && <p className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-xs font-bold border border-red-100">{error}</p>}
 
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
                 <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Member Name</label>
-                <input type="text" name="name" value={editingUser.name || ""} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" name="name" value={editingUser.name || ""} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none" />
               </div>
+
               <div>
                 <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Email Address</label>
-                <input type="email" name="email" value={editingUser.email || ""} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none transition-all" />
+                <input type="email" name="email" value={editingUser.email || ""} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none" />
               </div>
+
               <div>
                 <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Garden Role</label>
-                <select name="role" value={editingUser.role} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none appearance-none cursor-pointer font-bold text-green-700">
+                <select name="role" value={editingUser.role} onChange={handleInputChange} className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none font-bold text-green-700">
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Address</label>
+                <textarea 
+                  name="address"
+                  rows={3}
+                  value={editingUser.address || ""} 
+                  onChange={handleInputChange} 
+                  className="w-full bg-gray-50 border-0 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="ระบุที่อยู่สมาชิก..."
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 italic">New Password</label>
+                <input 
+                  type="password" 
+                  name="newPassword" 
+                  value={editingUser.newPassword || ""} 
+                  onChange={handleInputChange} 
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="กรอกรหัสใหม่ที่นี่..." 
+                />
+              </div>
             </div>
 
             <div className="flex justify-end gap-4 mt-10">
-              <button onClick={handleCloseModal} className="px-6 py-3 rounded-xl text-xs font-bold text-gray-400 hover:bg-gray-50 transition">Cancel</button>
+              <button onClick={handleCloseModal} className="px-6 py-3 rounded-xl text-xs font-bold text-gray-400 hover:bg-gray-50">Cancel</button>
               <button onClick={handleModalSave} className="px-8 py-3 rounded-2xl text-xs font-black text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 transition-all active:scale-95">Save Changes 🍃</button>
             </div>
           </div>
