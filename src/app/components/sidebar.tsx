@@ -16,7 +16,7 @@ export default function Sidebar() {
     if (status === 'unauthenticated') {
       router.push('/');
     } else if (status === 'authenticated' && session?.user?.email) {
-      // 🛡️ ย้าย fetchUserData มาไว้ข้างใน และเช็ค session ให้ชัวร์ก่อนดึงข้อมูล กันแอพพังครับ
+      
       const fetchUserData = async () => {
         try {
           const response = await axios.get(`/api/user/${session.user.email}`);
@@ -81,7 +81,7 @@ export default function Sidebar() {
               <span className="text-lg">👤</span> ข้อมูลส่วนตัว
             </Link>
             
-            {/* 💡 เตรียมปุ่มเปลี่ยนรหัสผ่านไว้ให้แล้วครับ! */}
+       
             <Link 
               href="/user/profile/change-password" 
               className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-green-50 hover:text-green-600 transition-all active:scale-95"

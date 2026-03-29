@@ -27,7 +27,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/admin/edit/page.tsx", "src/app/home/page.tsx", "src/app/components/Product.tsx", "src/app/user/register/page.jsx", "src/app/user/profile/information/page.tsx", "src/app/cart/[id]/page.tsx", "src/app/user/profile/changepassword/page.jsx", "src/app/api/auth/signup/route.js", "src/app/checkout/page.tsx", "src/app/bill/page.tsx", "next.config.mjs"  ],
+, "src/app/admin/edit/page.tsx", "src/app/home/page.tsx", "src/app/components/Product.tsx", "src/app/user/register/page.jsx", "src/app/user/profile/information/page.tsx", "src/app/cart/[id]/page.tsx", "src/app/user/profile/change-password/page.tsx", "src/app/api/auth/signup/route.js", "src/app/checkout/page.tsx", "src/app/bill/page.tsx", "next.config.mjs"  ],
   "exclude": [
     "node_modules"
   ]
