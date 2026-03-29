@@ -4,134 +4,138 @@ import Navbar from "../../../components/Navbar";
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2'; 
 
-interface Category {
-  id: number;
-  name: string;
-}
-
-export default function Edit({ params }: { params: { id: string } }) {
+export default function EditCategory({ params }: { params: { id: string } }) {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const { data: session, status } = useSession();
   const router = useRouter();
   const { id } = params;
 
-  // Fetch post data
-  const fetchCategories = async (id: string) => {
-    setLoading(true);
+  const fetchCategory = async (categoryId: string) => {
     try {
-      const res = await axios.get(`/api/categories/${id}`);
+      const res = await axios.get(`/api/categories/${categoryId}`);
       setName(res.data.name);
     } catch (error) {
-      setError('Failed to fetch post data');
-      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่พบข้อมูล',
+        text: 'ไม่สามารถดึงข้อมูลหมวดหมู่ได้',
+        confirmButtonColor: '#2D5A27'
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch user data and role
   const fetchUserData = async () => {
-    try {
-      if (session?.user?.email) {
-        const userResponse = await axios.get(`/api/user/${session.user.email}`);
-        setRole(userResponse.data.role || null); // Explicitly set role or null
+    if (session?.user?.email) {
+      try {
+        const res = await axios.get(`/api/user/${session.user.email}`);
+        setRole(res.data.role || null);
+      } catch (error) {
+        console.error('Role fetch error', error);
       }
-    } catch (error) {
-      console.error('Failed to fetch user data', error);
     }
   };
 
-  // Fetch categories data
-
-
   useEffect(() => {
-    if (id) {
-      fetchCategories(id);
-    }
+    if (id) fetchCategory(id);
     fetchUserData();
-  }, [id]);
+  }, [id, session]);
 
   useEffect(() => {
-    // console.log('Session status:', status);
-    // console.log('Role:', role);
-
-    // Redirect if the user is not an admin
-    if (status === 'authenticated' && role !== null) {
-      if (role !== 'admin') {
-        router.push('/');
-      }
-    }else if(status=== 'unauthenticated'){
+    if (status === 'unauthenticated') router.push('/');
+    if (status === 'authenticated' && role !== null && role !== 'admin') {
       router.push('/');
-    
     }
-    
   }, [status, role, router]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
+    setIsSaving(true);
     try {
-      await axios.put(`/api/categories/${id}`, {
-        name,
+      await axios.put(`/api/categories/${id}`, { name });
+      await Swal.fire({
+        icon: 'success',
+        title: 'สำเร็จ!',
+        text: 'แก้ไขหมวดหมู่เรียบร้อยแล้ว 🍃',
+        confirmButtonColor: '#2D5A27',
+        timer: 1500
       });
-      router.push('/admin');
+      router.push('/admin'); 
     } catch (error) {
-      setError('Something went wrong');
-      // console.log('error', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่สามารถบันทึกข้อมูลได้',
+        confirmButtonColor: '#ef4444'
+      });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   if (status === 'loading' || loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="w-10 h-10 border-4 border-[#88B04B] border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-3 text-[#2D5A27] text-sm font-medium italic">กำลังเตรียมข้อมูล... 🍃</p>
+      </div>
+    );
   }
 
   if (role === 'admin') {
     return (
-      <div>
+      <div className="bg-gray-50 min-h-screen">
         <Navbar />
-        <div className="p-8 min-h-screen bg-gray-100">
-          <div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg p-8">
-            <header className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Edit</h2>
+        <div className="max-w-md mx-auto px-4 pt-32 pb-16">
+          <div className="bg-white rounded-3xl shadow-lg shadow-green-100/30 p-8 border border-gray-100">
+            <header className="mb-8 text-center">
+              <span className="text-[#88B04B] text-[10px] font-black uppercase tracking-[0.2em] mb-1 block">Management</span>
+              <h2 className="text-xl font-black text-gray-800 italic">Edit Category</h2>
+              <div className="w-10 h-1 bg-[#2D5A27] mx-auto mt-3 rounded-full"></div>
             </header>
-            <div className="space-y-6">
-              <form onSubmit={handleSubmit}>
-                <div className="border-b-2 border-gray-300 pb-4">
-                  <div className="h-20">
-                    <div className="text-lg font-semibold">Name</div>
-                    <input
-                      type="text"
-                      name="title"
-                      id="title"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      className="mt-1 block h-10 w-full rounded-md border-2 border-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-             
-                
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">
+                  Category Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="เช่น ไม้ฟอกอากาศ..."
+                  className="w-full bg-gray-50 border-none rounded-xl p-3.5 text-sm text-gray-700 focus:ring-1 focus:ring-[#88B04B] transition-all outline-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2">
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700 mt-12"
-                  disabled={loading}
+                  disabled={isSaving}
+                  className="w-full bg-[#2D5A27] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-md shadow-green-100 disabled:opacity-50"
                 >
-                  {loading ? 'Saving...' : 'Edit'}
+                  {isSaving ? 'Updating...' : 'Save Changes 🍃'}
                 </button>
-              </form>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="w-full py-3 text-xs font-semibold text-gray-400 hover:text-gray-600 transition-all uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
+          <p className="text-center mt-6 text-gray-300 text-[9px] uppercase tracking-[0.2em]">
+            REF ID: {id}
+          </p>
         </div>
       </div>
     );
