@@ -23,8 +23,10 @@ export default function Infostock() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [role, setRole] = useState('');
+  
+  // State สำหรับ Top Buyer (ปรับ moneytop ให้เริ่มต้นเป็น 0)
   const [usertop, setnametopbuy] = useState('');
-  const [moneytop, setvaluetopbuy] = useState('');
+  const [moneytop, setvaluetopbuy] = useState(0); 
   const [salesData, setSalesData] = useState([]);
 
   // --- API Functions ---
@@ -50,12 +52,16 @@ export default function Infostock() {
     } catch (err) { setError('Failed to fetch categories'); }
   };
 
+  // 🚨 แก้ไขให้ดึงจาก API เส้นใหม่ที่เราสร้างไว้
   const fetchtopbuy = async () => {
     try {
-      const resuser = await axios.get(`/api/user`);
+      const resuser = await axios.get(`/api/top-buyer`);
       setnametopbuy(resuser.data.name);
       setvaluetopbuy(resuser.data.purchaseamount);
-    } catch (err) { setError('Failed to fetch top buyer'); }
+    } catch (err) { 
+      console.error('Failed to fetch top buyer:', err);
+      setError('Failed to fetch top buyer'); 
+    }
   };
 
   const fetchUserData = async () => {
@@ -175,7 +181,7 @@ export default function Infostock() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {[
             { label: 'Total Stock', value: posts.length, sub: 'Items in inventory', icon: '🌿' },
-            { label: 'Top Buyer', value: usertop || '-', sub: `Total: ฿${moneytop?.toLocaleString()}`, icon: '💎' },
+            { label: 'Top Buyer', value: usertop || '-', sub: `Total: ฿${(moneytop || 0).toLocaleString()}`, icon: '💎' },
             { label: 'Categories', value: categories.length, sub: 'Product groups', icon: '📁' },
           ].map((stat, i) => (
             <div key={i} className="bg-white p-8 rounded-[2rem] shadow-sm flex items-center justify-between border border-white">
