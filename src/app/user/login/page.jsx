@@ -57,7 +57,7 @@ export default function Login() {
                             Sign in
                         </h1>
                         <p className="text-gray-400 font-light text-sm">
-                            Welcome back to KAB GARDEN. Please enter your details.
+                            Welcome back to KAB GARDEN. 
                         </p>
                     </div>
 
@@ -88,7 +88,7 @@ export default function Login() {
                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-wider" htmlFor="password">
                                     Password
                                 </label>
-                                <Link href="#" className="text-[11px] text-[#2D5A27] hover:font-bold transition-all">
+                                <Link href="/user/forgot-password" className="text-[11px] text-[#2D5A27] hover:font-bold transition-all">
                                     Forgot password?
                                 </Link>
                             </div>

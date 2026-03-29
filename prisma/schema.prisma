@@ -72,3 +72,9 @@ model OrderItem {
   createdAt  DateTime  @default(now())
 }
 
+model VerificationToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  token     String   // เราจะใช้เก็บรหัส OTP 6 หลักที่นี่
+  expires   DateTime // เวลาหมดอายุ
+}

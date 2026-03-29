@@ -87,7 +87,7 @@ export default function AdminUserPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("คุณแน่ใจนะว่าจะลบสมาชิกคนนี้? ข้อมูลจะหายไปตลอดกาลเลยนะสวน!")) return;
+    if (!confirm("คุณแน่ใจนะว่าจะลบสมาชิกคนนี้? ข้อมูลจะหายไป!")) return;
     const res = await fetch("/api/admin/users", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -100,7 +100,7 @@ export default function AdminUserPage() {
   if (status === "loading" || (status === "authenticated" && (session?.user as any)?.role !== "admin")) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white font-medium text-green-700 italic animate-pulse">
-        กำลังตรวจสอบสิทธิ์เจ้าของสวน... 🍃
+        กำลังตรวจสอบสิทธิ์... 🍃
       </div>
     );
   }
@@ -128,7 +128,7 @@ export default function AdminUserPage() {
               <tr key={user.id} className="hover:bg-green-50/30 transition duration-150">
                 <td className="p-5 text-gray-400 font-mono text-xs">#{user.id}</td>
                 <td className="p-5">
-                  <div className="font-bold text-gray-800">{user.name || "ยังไม่ตั้งชื่อสวน"}</div>
+                  <div className="font-bold text-gray-800">{user.name || "ยังไม่ตั้งชื่อ"}</div>
                   <div className="text-xs text-gray-400">{user.email}</div>
                 </td>
                 <td className="p-5 text-sm">
