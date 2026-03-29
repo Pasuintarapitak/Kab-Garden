@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Sidebar from '../../../components/Sidebar';
+import Sidebar from '../../../components/sidebar';
 import Navbar from '../../../components/Navbar';
 
 export default function Information() {

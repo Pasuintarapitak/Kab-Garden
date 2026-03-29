@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/sidebar";
 import Navbar from "../../../components/Navbar";
 import Swal from 'sweetalert2';
 
