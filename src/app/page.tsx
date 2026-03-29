@@ -1,29 +1,28 @@
-'use client'
 import Link from "next/link";
-import React from 'react'
+import React from 'react';
 import Image from "next/image";
 import ProductCard from "./components/productCard";
-import Navbar from "./components/Navbar"; // 1. อย่าลืม Import Navbar มาใส่ครับ
+import Navbar from "./components/Navbar";
+import prisma from "../lib/prisma"
 
-const popularProducts = [
-  { id: "1", name: "Purple-petaled flowers", price: 200, image: "https://fastly.picsum.photos/id/152/3888/2592.jpg?hmac=M1xv1MzO9xjf5-tz1hGR9bQpNt973ANkqfEVDW0-WYU" },
-  { id: "2", name: "Cactus", price: 250, image: "https://fastly.picsum.photos/id/248/3872/2592.jpg?hmac=_F3LsKQyGyWnwQJogUtsd_wyx2YDYnYZ6VZmSMBCxNI" },
-  { id: "3", name: "Lotus", price: 250, image: "https://fastly.picsum.photos/id/306/1024/768.jpg?hmac=rXix18Pn1poetHRHwu28zu8hUP0KobfXP28uQgomRAI" },
-  { id: "4", name: "Thunberg's Meadowsweet ", price: 890, image: "https://fastly.picsum.photos/id/305/4928/3264.jpg?hmac=s2FLjeAIyYH0CZl3xuyOShFAtL8yEGiYk31URLDxQCI" },
-];
+export default async function Home() {
+  // 🔌 ดึงข้อมูลจากตาราง Post (ไม่ใช่ Product) เอามา 4 ชิ้นที่ขายดีที่สุด!
+  const popularProducts = await prisma.post.findMany({
+    take: 4,
+    orderBy: {
+      Sales: 'desc' // เรียงจากยอดขาย (Sales) มากไปน้อยตาม Schema เลยครับ
+    }
+  });
 
-export default function Home() {
   return (
     <div className="bg-white min-h-screen">
-      {/* 2. ใส่ Navbar ไว้บนสุด */}
       <Navbar />
 
-      {/* เพิ่ม pt-20 เพื่อไม่ให้ Navbar บังเนื้อหาข้างบน */}
+      {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 py-20 md:py-32 pt-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
-          {/* ฝั่งซ้าย: แก้ไขขนาดรูปให้ Tailwind รู้จัก */}
-          <div className="relative h-[500px] md:h-[600px] w-full overflow-hidden shadow-lg rounded-sm">
+          <div className="relative h-[500px] md:h-[600px] w-full overflow-hidden shadow-lg rounded-md">
             <Image 
               src="https://fastly.picsum.photos/id/18/2500/1667.jpg?hmac=JR0Z_jRs9rssQHZJ4b7xKF82kOj8-4Ackq75D_9Wmz8" 
               alt="Plant Care"
@@ -33,7 +32,6 @@ export default function Home() {
             />
           </div>
 
-          {/* ฝั่งขวา: ข้อความ */}
           <div className="flex flex-col items-start text-left">
             <h2 className="text-4xl md:text-6xl font-extrabold text-[#1a1a1a] mb-6 leading-tight">
               We&apos;re Plant Seller <br /> Choose & Decorate
@@ -54,9 +52,9 @@ export default function Home() {
         </div>
       </section>
       
-      {/* ส่วนแสดงสินค้า */}
+      {/* Product Section */}
       <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-50">
-        <div className="flex justify-between items-end mb-12">
+        <div className="flex justify-between items-end mb-12 ">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">Our Products</h2>
             <p className="text-gray-400 mt-2">Make earth beautiful by your choice</p>
@@ -66,20 +64,26 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-          {popularProducts.map((product) => (
-            <ProductCard 
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-            />
-          ))}
-        </div>
+     
+        {popularProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 rounded-md">
+            {popularProducts.map((item: any) => (
+              <ProductCard 
+                key={item.id}
+                id={String(item.id)}
+                name={item.title} 
+                price={item.price || 0}
+                image={item.img || "https://fastly.picsum.photos/id/248/3872/2592.jpg?hmac=_F3LsKQyGyWnwQJogUtsd_wyx2YDYnYZ6VZmSMBCxNI"} // 🚨 เปลี่ยนจาก image เป็น img
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-gray-400 py-10 col-span-full">
+            <p>ยังไม่มีต้นไม้ 🍃</p>
+          </div>
+        )}
       </section>
       
-      {/* เพิ่มพื้นที่ข้างล่างเพื่อให้เลื่อนจอได้ยาวขึ้น จะได้เห็น Navbar เปลี่ยนสี */}
       <div className="h-[200px]"></div>
     </div>
   );
