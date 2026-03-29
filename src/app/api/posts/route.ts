@@ -5,10 +5,13 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // ดึงสินค้าทั้งหมดจากฐานข้อมูล Supabase
+    // ดึงสินค้าทั้งหมดจากฐานข้อมูล พร้อมหมวดหมู่
     const posts = await prisma.post.findMany({
+      include: {
+        category: true 
+      },
       orderBy: {
-        createdAt: 'desc' // ให้สินค้าใหม่ขึ้นก่อน
+        createdAt: 'desc' 
       }
     });
     

@@ -42,13 +42,13 @@ useEffect(() => {
   // 🔍 Logic สำหรับการกรองสินค้า
   const filteredProducts = selectedCategory === 'all' 
     ? products 
-    : products.filter((p: any) => p.categoryId === parseInt(selectedCategory))
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center text-green-700 italic animate-pulse">
-      กำลังเตรียมต้นไม้สวยๆ ให้คุณ... 🍃
-    </div>
-  )
+    : products.filter((p: any) => {
+        // ดึง ID หมวดหมู่ออกมา ไม่ว่าจะอยู่ชั้นนอก (categoryId) หรือชั้นใน (category.id)
+        const itemCategoryId = p.categoryId || p.category?.id;
+        
+        // แปลงทั้งคู่เป็น String ก่อนเทียบกัน เพื่อป้องกันปัญหาตัวเลข vs ตัวอักษร
+        return String(itemCategoryId) === String(selectedCategory);
+      });
 
   return (
     <div className="bg-white min-h-screen">
