@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import Swal from 'sweetalert2'; 
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import AdminUserPage from "./users/page";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -280,6 +281,7 @@ export default function Infostock() {
             </div>
           </div>
         </div>
+        <AdminUserPage/>
       </main>
     </div>
   );

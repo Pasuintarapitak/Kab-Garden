@@ -62,10 +62,10 @@ export default function Edit({ params }: { params: { id: string } }) {
     // Redirect if the user is not an admin
     if (status === 'authenticated' && role !== null) {
       if (role !== 'admin') {
-        router.push('/home');
+        router.push('/');
       }
     }else if(status=== 'unauthenticated'){
-      router.push('/home');
+      router.push('/');
     
     }
     

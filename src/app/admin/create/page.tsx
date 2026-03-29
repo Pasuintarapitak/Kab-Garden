@@ -55,9 +55,9 @@ export default function CreatePost() {
 
   useEffect(() => {
     if (status === 'authenticated' && role !== null) {
-      if (role !== 'admin') router.push('/home');
+      if (role !== 'admin') router.push('/');
     } else if (status === 'unauthenticated') {
-      router.push('/home');
+      router.push('/');
     }
   }, [status, role]);
 
