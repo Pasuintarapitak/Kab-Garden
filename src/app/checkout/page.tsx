@@ -55,7 +55,7 @@ const handleCheckout = async () => {
         confirmButtonText: 'รับทราบ',
         customClass: { popup: 'rounded-[2rem]' }
       });
-      return; // 🛑 เบรกแตก หยุดทันที!
+      return; 
     }
 
     if (cartItems.length === 0) {
