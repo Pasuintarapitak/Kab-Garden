@@ -1,6 +1,6 @@
 // src/app/api/order/[id]/route.ts
 import { PrismaClient } from '@prisma/client';
-
+import { NextResponse } from 'next/server';
 const prisma = new PrismaClient();
 
 export async function GET(
@@ -43,5 +43,22 @@ export async function GET(
     return new Response('An error occurred while fetching the order.', {
       status: 500,
     });
+  }
+}
+
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const { id } = params;
+    const { status } = await request.json();
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: parseInt(id) },
+      data: { status: status },
+    });
+
+    return NextResponse.json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return new NextResponse('Failed to update order', { status: 500 });
   }
 }

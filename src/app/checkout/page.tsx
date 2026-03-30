@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Image from 'next/image';
+import Swal from 'sweetalert2'; // 🚨 อย่าลืม Import Swal ด้วยนะครับ!
 
 interface CartItem {
   id: number;
@@ -33,95 +34,30 @@ export default function Checkout() {
   const totalPrice = cartItems.reduce((total, item) => total + (item.value * item.post.price), 0);
   const shippingCost = 36;
 
-  // const handleCheckout = async () => {
-  //   if (cartItems.length === 0) {
-  //     setError('ตะกร้าสินค้าว่างเปล่า กรุณาเลือกสินค้าก่อนชำระเงิน');
-  //     return;
-  //   }
+const handleCheckout = async () => {
+    
   
-  //   try {
-  //     if (!userId) {
-  //       setError('ไม่พบข้อมูลผู้ใช้งาน');
-  //       return;
-  //     }
-  
-  //     const orderId = Math.floor(Math.random() * 1000000).toString();
-  //     const items = cartItems.map(item => ({
-  //       postId: item.post.id,
-  //       quantity: item.value,
-  //       totalPrice: item.value * item.post.price,
-  //     }));
-  
-  //     await axios.post('/api/order', {
-  //       userId: Number(userId),
-  //       orderId,
-  //       items,
-  //     });
+    const checkAddr = String(address).trim().toLowerCase();
 
-  //     await Promise.all(cartItems.map(async item => {
-  //       await axios.put(`/api/posts/${item.post.id}`, {
-  //         quantity: item.post.quantity - item.value,
-  //         Sales: item.post.Sales + (item.value * item.post.price)
-  //       });
-  //       await axios.delete(`/api/cart/${item.id}`);
-  //     }));
-  
-  //     router.push(`/bill?orderId=${orderId}`);
-  //   } catch (error) {
-  //     console.error('Error during checkout:', error);
-  //     setError('เกิดข้อผิดพลาดในการประมวลผลคำสั่งซื้อ');
-  //   }
-  // };
+    
+    if (
+      !checkAddr || 
+      checkAddr === '' || 
+      checkAddr === 'null' || 
+      checkAddr === 'undefined' || 
+      checkAddr === 'กรุณาระบุที่อยู่ในการจัดส่ง' 
+    ) {
+      Swal.fire({
+        title: 'ลืมระบุที่อยู่',
+        text: 'กรุณาระบุที่อยู่จัดส่งก่อนทำการสั่งซื้อ 🏡 (แก้ไขได้ที่หน้า Profile)',
+        icon: 'warning',
+        confirmButtonColor: '#2D5A27',
+        confirmButtonText: 'รับทราบ',
+        customClass: { popup: 'rounded-[2rem]' }
+      });
+      return; // 🛑 เบรกแตก หยุดทันที!
+    }
 
-  // const handleCheckout = async () => {
-  //   if (cartItems.length === 0) {
-  //     setError('ตะกร้าสินค้าว่างเปล่า กรุณาเลือกสินค้าก่อนชำระเงิน');
-  //     return;
-  //   }
-  
-  //   try {
-  //     if (!userId) {
-  //       setError('ไม่พบข้อมูลผู้ใช้งาน');
-  //       return;
-  //     }
-  
-  //     const orderId = Math.floor(Math.random() * 1000000).toString();
-  //     const items = cartItems.map(item => ({
-  //       postId: item.post.id,
-  //       quantity: item.value,
-  //       totalPrice: item.value * item.post.price,
-  //     }));
-  
-  //     // 1. สร้าง Order ก่อน
-  //     await axios.post('/api/order', {
-  //       userId: Number(userId),
-  //       orderId,
-  //       items,
-  //     });
-
-  //     // 2. ค่อยๆ อัปเดตสต็อกและลบตะกร้าทีละชิ้น (ช่วยลด Connection Limit)
-  //     for (const item of cartItems) {
-  //       // อัปเดตจำนวนสินค้าและยอดขาย
-  //       await axios.put(`/api/posts/${item.post.id}`, {
-  //         quantity: item.post.quantity - item.value,
-  //         Sales: (item.post.Sales || 0) + (item.value * item.post.price)
-  //       });
-        
-  //       // ลบออกจากตะกร้า
-  //       await axios.delete(`/api/cart/${item.id}`);
-  //     }
-  
-  //     // 3. ถ้าทุกอย่างผ่าน ไปหน้า Bill
-  //     router.push(`/bill?orderId=${orderId}`);
-      
-  //   } catch (error) {
-  //     console.error('Error during checkout:', error);
-  //     setError('เกิดข้อผิดพลาดในการประมวลผลคำสั่งซื้อ (Database Connection Limit)');
-  //   }
-  // };
-
-
-  const handleCheckout = async () => {
     if (cartItems.length === 0) {
       setError('ตะกร้าสินค้าว่างเปล่า กรุณาเลือกสินค้าก่อนชำระเงิน');
       return;
@@ -135,17 +71,14 @@ export default function Checkout() {
   
       const orderId = Math.floor(Math.random() * 1000000).toString();
       
-      // 1. เตรียมข้อมูล items ให้ตรงกับที่ API ใหม่ต้องการ
       const items = cartItems.map(item => ({
         postId: item.post.id,
         quantity: item.value,
         totalPrice: item.value * item.post.price,
       }));
 
-      // 2. เตรียม ID ของตะกร้าที่จะลบ
       const cartItemIds = cartItems.map(item => item.id);
-
-      // ✅ 3. ยิงไปที่ API รวมร่าง (/api/checkout) ครั้งเดียวจบ
+      
       await axios.post('/api/checkout', {
         userId: Number(userId),
         orderId,
@@ -153,17 +86,14 @@ export default function Checkout() {
         cartItemIds
       });
   
-      // 4. ถ้าผ่านแล้ว ไปหน้า Bill เลย
       router.push(`/bill?orderId=${orderId}`);
       
     } catch (error) {
       console.error('Error during checkout:', error);
-      // ถ้า Error มาจากหลังบ้าน เราจะโชว์แจ้งเตือนให้ User ทราบ
-      setError('เกิดข้อผิดพลาดในการประมวลผลคำสั่งซื้อ (Database Connection Limit)');
+      setError('เกิดข้อผิดพลาดในการประมวลผลคำสั่งซื้อ');
     }
   };
 
-  
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`/api/user/${session?.user?.email}`);
@@ -210,7 +140,7 @@ export default function Checkout() {
                 <h2 className="text-xl font-bold text-gray-900">Shipping Address</h2>
               </div>
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <p className="text-gray-700 leading-relaxed">{address || 'กรุณาระบุที่อยู่ในการจัดส่ง'}</p>
+                <p className="text-gray-700 leading-relaxed">{address || <span className="text-red-400 italic font-medium">กรุณาระบุที่อยู่ในการจัดส่ง (แก้ไขได้ที่หน้า Profile)</span>}</p>
               </div>
             </section>
 

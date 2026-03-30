@@ -1,19 +1,29 @@
-// import { PrismaClient } from '@prisma/client';
 import prisma from '../../../lib/prisma';
 import { NextResponse } from 'next/server';
 
-// const prisma = new PrismaClient();
-
-// GET method for fetching orders
+// GET method for fetching orders (อัปเกรดแล้ว 🚀)
 export async function GET() {
   try {
     const orders = await prisma.order.findMany({
+      orderBy: {
+        createdAt: 'desc', 
+      },
       include: {
+        
+        user: {
+          select: {
+            name: true,
+            email: true,
+            address: true,
+            phone: true,
+          }
+        },
         items: {
           include: {
             post: {
               select: {
                 title: true,
+                price: true, 
                 img: true,
               },
             },
@@ -29,7 +39,7 @@ export async function GET() {
   }
 }
 
-// POST method for creating a new order
+// POST method for creating a new order (คงของเดิมไว้ 100% ป้องกันระบบพัง 🛡️)
 export async function POST(request: Request) {
   try {
     const { userId, orderId, items } = await request.json();
